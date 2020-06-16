@@ -23,7 +23,7 @@ public class SemVerAnalyzer {
 	private final static String equalOutput = "equal";
 	private final static String beforeOutput = "before";
 	private final static String afterOutput = "after";
-	private final static String invalidOutput = "invalid input";
+	private final static String invalidOutput = "invalid";
 	private boolean fileInput = false;
 	private boolean directInput = false;
 	private boolean testing = false;
@@ -33,14 +33,14 @@ public class SemVerAnalyzer {
 	public SemVerAnalyzer() {};
 	
 	//Compare input string to valid regex based on expected input for Semantic Versioning guidlines
-	private boolean validateInput(String input) {
+	protected boolean validateInput(String input) {
 		Pattern pattern = Pattern.compile("(\\d+)\\.(\\d+)\\.(\\d+)(-.*)*(\\+.*)*(\\s)+(\\d+)\\.(\\d+)\\.(\\d+)(-.*)*(\\+.*)*");
 		Matcher match = pattern.matcher(input);
 		return match.matches();
 	}
 	
 	//Create SemVer objects based on input data and use the object comparator to determine order, returning correct string value
-	private String evaluateInput(String input) {
+	protected String evaluateInput(String input) {
 		String version1 = input.split("\\s+")[0];
 		String version2 = input.split("\\s+")[1];
 		SemVer ver1 = utils.stringToSemVer(version1);
@@ -90,13 +90,12 @@ public class SemVerAnalyzer {
 	/**
 	 * Analyzes the versioning information passed in as a string based on the current status of instance flags.
 	 * Will either read information from user input on the command line, specified file path, or directly passed in
-	 * arguments and returns a string indicating whether the first version is equal to, before, or after the second version
+	 * arguments and prints to stdout indicating whether the first version is equal to, before, or after the second version
 	 * @param args   	an array of Strings indicating input flag information and a String in the format 
 	 * 					VERSION_NUMBER\\{whitespace\\}VERSION_NUMBER
-	 * @return			A string value representing the comparison of the first version to the second, will be one of:
-	 * 					"before", "after", "equal", "invalid input"
+	 * 
 	 */
-	public String analyze(String[] args) {
+	public void analyze(String[] args) {
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 		String inputData = "";
 		
@@ -110,11 +109,11 @@ public class SemVerAnalyzer {
 					e.printStackTrace();
 				}
 				if(this.validateInput(inputData)) {
-					return this.evaluateInput(inputData);
+					System.out.println(this.evaluateInput(inputData));
 				}else {
 					if(inputData.contains("stop") || inputData.contains("STOP")) break;
 					if(inputData.trim().isEmpty()) continue;
-					return invalidOutput;
+					System.out.println(invalidOutput);
 				}
 			}
 		}
@@ -139,16 +138,15 @@ public class SemVerAnalyzer {
 					line = reader.readLine();
 				}
 				reader.close();
-				return output.trim();
+				System.out.println(output.trim());
 			}catch(IOException e) {
 				e.printStackTrace();
 			}
 		}
 		//Direct input indicated, read input directly from arguments passed into application
 		else {
-			return validateAndEvaluate(inputParam);
+			System.out.println(validateAndEvaluate(inputParam));
 		}
-		return null;
 	}
 	
 	/**
@@ -165,7 +163,7 @@ public class SemVerAnalyzer {
 			junit.addListener(new TextListener(System.out));
 			junit.run(CompTest.class);
 		} else {
-			System.out.println(semAnalyze.analyze(args));
+			semAnalyze.analyze(args);
 		}
 	}
 	/**

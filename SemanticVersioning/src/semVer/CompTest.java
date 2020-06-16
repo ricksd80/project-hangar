@@ -30,7 +30,11 @@ public class CompTest {
 		for(String key : inputMap.keySet()) {
 			String [] arguments = new String[]{"-input", key};
 			semA.processArgs(arguments);
-			assertEquals(inputMap.get(key), semA.analyze(arguments));
+			if(inputMap.get(key).contentEquals("invalid input")) {
+				assertEquals(false, semA.validateInput(key));
+			} else {
+				assertEquals(inputMap.get(key), semA.evaluateInput(key));
+			}
 		}
 		
 		/*
